@@ -63,25 +63,25 @@ export class MelhorRastreio {
         this.apiUrl,
         {
           query: `mutation searchParcel ($tracker: TrackerSearchInput!) {
-                    result: searchParcel (tracker: $tracker) {
-                      id
-                      createdAt
-                      updatedAt
-                      lastStatus
-                      trackingEvents {
-                        trackerType
-                        trackingCode
-                        createdAt
-                        title
-                        description
-                        location {
-                          complement
-                          city
-                          state
-                        }
-                      }
-                    }
-                  }`,
+            result: searchParcel (tracker: $tracker) {
+              id
+              createdAt
+              updatedAt
+              lastStatus
+              trackingEvents {
+                trackerType
+                trackingCode
+                createdAt
+                title
+                description
+                location {
+                  complement
+                  city
+                  state
+                }
+              }
+            }
+          }`,
           variables: { tracker: { trackingCode: code, type: "correios" } },
         },
         {
@@ -100,25 +100,39 @@ export class MelhorRastreio {
         data: [],
       };
 
+      const result = data.data.result;
+      if (!result || !result.trackingEvents) {
+        throw new Error("No tracking events found");
+      }
+
       // Processa os eventos de rastreamento
-      data.data.result.trackingEvents.forEach((event: any) => {
-        const location = `${event.location.complement} - ${event.location.city}/${event.location.state}`;
-        responseObject.data.push({
-          date: new Date(event.createdAt).toLocaleString("en-US", {
-            month: "2-digit",
-            day: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-          }),
-          to: event.to || "",
-          from: event.from || "",
-          location: location,
-          originalTitle: event.title || event.description,
-          details: event.description,
-        });
-      });
+      result.trackingEvents.forEach(
+        (event: {
+          createdAt: string;
+          location: any;
+          to: string;
+          from: string;
+          title: string;
+          description: string;
+        }) => {
+          const location = `${event.location.complement} - ${event.location.city}/${event.location.state}`;
+          responseObject.data.push({
+            date: new Date(event.createdAt).toLocaleString("en-US", {
+              month: "2-digit",
+              day: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            }),
+            to: event.to || "",
+            from: event.from || "",
+            location: location,
+            originalTitle: event.title || event.description,
+            details: event.description,
+          });
+        }
+      );
 
       // Ordena os eventos por data decrescente
       responseObject.data.sort(

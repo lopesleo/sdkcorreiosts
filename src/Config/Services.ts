@@ -1,4 +1,5 @@
-import { FormatResponse } from "./FormatResponse";
+import { MelhorRastreio } from "../Services/MelhorRastreio";
+import { RastreadorDePacotes } from "../Services/RastreadorDePacotes";
 
 export class Services {
   public static service: string;
@@ -10,16 +11,21 @@ export class Services {
   public static getServices(): Record<string, string> {
     const services: Record<string, string> = {
       "0001": "MelhorRastreio",
-      "0002": "EncomendaIo",
-      "0003": "RastreadorDePacotes",
-      "0004": "RastreamentoCorreio",
-      "0005": "Muambator",
-      "0006": "RastreioCorreios",
-      "0007": "LinkCorreios",
+      "0002": "RastreadorDePacotes",
+      "0003": "RastreamentoCorreio",
+      "0004": "Muambator",
+      "0005": "RastreioCorreios",
+      "0006": "LinkCorreios",
     };
 
     return services;
   }
+
+  public static serviceRegistry: Record<string, any> = {
+    MelhorRastreio: MelhorRastreio,
+    RastreadorDePacotes: RastreadorDePacotes,
+    // Adicione outros serviços aqui conforme necessário
+  };
 
   public static getMessageError(): string {
     return this.error;
@@ -29,6 +35,7 @@ export class Services {
     const services = this.getServices();
 
     if (services[service]) {
+      this.service = services[service];
       this.success = true;
       return true;
     } else {

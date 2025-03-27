@@ -15,10 +15,18 @@ export class Tracking {
       if (!Services.success) return false;
       if (!this.code) return false;
 
-      const serviceName = Services.service;
-      const ServiceClass = (Services as any)[serviceName];
+      // Obtenha a lista de serviços disponíveis
+      const availableServices = Services.getServices();
 
-      if (!ServiceClass) return false;
+      //  Verifica se o serviço selecionado é válido
+      const serviceName = Services.service;
+      const ServiceClass = Services.serviceRegistry[serviceName];
+
+      if (!ServiceClass) {
+        throw new Error(`Serviço '${serviceName}' não é válido.`);
+      }
+
+      // Instancia a classe do serviço
       const serviceInstance = new ServiceClass();
 
       if (typeof serviceInstance.tracking !== "function") return false;
